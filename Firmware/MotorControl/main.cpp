@@ -225,9 +225,9 @@ bool ODrive::any_error() {
 
 uint64_t ODrive::get_drv_fault() {
 #if AXIS_COUNT == 1
-    return motors[0].gate_driver_.get_error();
+    return 0;
 #elif AXIS_COUNT == 2
-    return (uint64_t)motors[0].gate_driver_.get_error() | ((uint64_t)motors[1].gate_driver_.get_error() << 32ULL);
+    return 0;
 #else
     #error "not supported"
 #endif

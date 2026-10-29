@@ -29,7 +29,7 @@ public:
         float current_lim_margin = 8.0f;    // Maximum violation of current_lim
         float torque_lim = std::numeric_limits<float>::infinity();           //[Nm]. 
         // Value used to compute shunt amplifier gains
-        float requested_current_range = 60.0f; // [A]
+        float requested_current_range = 50.0f; // [A]
         float current_control_bandwidth = 1000.0f;  // [rad/s]
         float inverter_temp_limit_lower = 100;
         float inverter_temp_limit_upper = 120;
@@ -63,8 +63,6 @@ public:
     Motor(TIM_HandleTypeDef* timer,
          uint8_t current_sensor_mask,
          float shunt_conductance,
-         TGateDriver& gate_driver,
-         TOpAmp& opamp,
          OnboardThermistorCurrentLimiter& fet_thermistor,
          OffboardThermistorCurrentLimiter& motor_thermistor);
 
@@ -94,8 +92,6 @@ public:
     TIM_HandleTypeDef* const timer_;
     const uint8_t current_sensor_mask_;
     const float shunt_conductance_;
-    TGateDriver& gate_driver_;
-    TOpAmp& opamp_;
     OnboardThermistorCurrentLimiter& fet_thermistor_;
     OffboardThermistorCurrentLimiter& motor_thermistor_;
 
