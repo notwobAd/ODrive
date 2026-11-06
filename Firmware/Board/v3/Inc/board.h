@@ -28,7 +28,7 @@
 #define SHUNT_RESISTANCE (500e-6f)
 #endif
 
-#define AMP_GAIN (50)
+#define AMP_GAIN (40)
 
 #define AXIS_COUNT (2)
 
@@ -79,6 +79,7 @@
 #define MAX_CONTROL_LOOP_UPDATE_TO_CURRENT_UPDATE_DELTA (TIM_1_8_PERIOD_CLOCKS / 2 + 1 * 128)
 
 #ifdef __cplusplus
+#include <Drivers/DRV8323H/drv8323h.hpp>
 #include <Drivers/STM32/stm32_gpio.hpp>
 #include <Drivers/STM32/stm32_spi_arbiter.hpp>
 #include <MotorControl/pwm_input.hpp>
@@ -123,10 +124,10 @@ static const int current_meas_hz = CURRENT_MEAS_HZ;
 #error "unknown board voltage"
 #endif
 
-// Linear range of the DRV8301 opamp output: 0.3V...5.7V. We set the upper limit
-// to 3.0V so that it's symmetric around the center point of 1.65V.
-#define CURRENT_SENSE_MIN_VOLT  0.3f
-#define CURRENT_SENSE_MAX_VOLT  3.0f
+// Linear range of the DRV8323H opamp output: 0.25V...Vvref-0.25V. We set the upper limit
+// to 3.05V so that it's symmetric around the center point of 1.65V.
+#define CURRENT_SENSE_MIN_VOLT  0.25f
+#define CURRENT_SENSE_MAX_VOLT  3.05f
 
 // This board has no board-specific user configurations
 static inline bool board_read_config() { return true; }

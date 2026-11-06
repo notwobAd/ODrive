@@ -36,6 +36,14 @@ UART_HandleTypeDef* uart_a = &huart4;
 UART_HandleTypeDef* uart_b = &huart2; // TODO: this could be supported in ODrive v3.6 (or similar) using STM32's USART2
 UART_HandleTypeDef* uart_c = nullptr;
 
+Drv8323h m0_gate_driver{
+    {nFAULT_GPIO_Port, nFAULT_Pin} // nFAULT pin (shared between both motors)
+};
+
+Drv8323h m1_gate_driver{
+    {nFAULT_GPIO_Port, nFAULT_Pin} // nFAULT pin (shared between both motors)
+};
+
 const float fet_thermistor_poly_coeffs[] =
     {363.93910201f, -462.15369634f, 307.55129571f, -27.72569531f};
 const size_t fet_thermistor_num_coeffs = sizeof(fet_thermistor_poly_coeffs)/sizeof(fet_thermistor_poly_coeffs[1]);
@@ -63,6 +71,7 @@ Motor motors[AXIS_COUNT] = {
         &htim1, // timer
         0b110, // current_sensor_mask
         1.0f / SHUNT_RESISTANCE, // shunt_conductance [S]
+        m0_gate_driver, // gate_driver
         fet_thermistors[0],
         motor_thermistors[0]
     },
@@ -70,6 +79,7 @@ Motor motors[AXIS_COUNT] = {
         &htim8, // timer
         0b110, // current_sensor_mask
         1.0f / SHUNT_RESISTANCE, // shunt_conductance [S]
+        m1_gate_driver, // gate_driver
         fet_thermistors[1],
         motor_thermistors[1]
     }
@@ -347,6 +357,14 @@ bool board_init() {
     __HAL_DBGMCU_FREEZE_TIM8();
     __HAL_DBGMCU_FREEZE_TIM13();
 
+    Stm32Gpio drv_enable_gpio = {EN_GATE_GPIO_Port, EN_GATE_Pin};
+
+    // Reset both DRV chips.
+    drv_enable_gpio.write(false);
+    delay_us(40);
+    drv_enable_gpio.write(true);
+    delay_us(2000);
+
     return true;
 }
 
@@ -400,16 +418,22 @@ static bool fetch_and_reset_adcs(
 
     vbus_sense_adc_cb(ADC1->JDR1);
 
-    std::optional<float> phB0 = motors[0].phase_current_from_adcval(ADC2->JDR1);
-    std::optional<float> phC0 = motors[0].phase_current_from_adcval(ADC3->JDR1);
-    if (phB0.has_value() && phC0.has_value()) {
-        *current0 = {-*phB0 - *phC0, *phB0, *phC0};
+    if (m0_gate_driver.is_ready())
+    {
+        std::optional<float> phB = motors[0].phase_current_from_adcval(ADC2->JDR1);
+        std::optional<float> phC = motors[0].phase_current_from_adcval(ADC3->JDR1);
+        if (phB.has_value() && phC.has_value()) {
+            *current0 = {-*phB - *phC, *phB, *phC};
+        }
     }
 
-    std::optional<float> phB1 = motors[1].phase_current_from_adcval(ADC2->DR);
-    std::optional<float> phC1 = motors[1].phase_current_from_adcval(ADC3->DR);
-    if (phB1.has_value() && phC1.has_value()) {
-        *current1 = {-*phB1 - *phC1, *phB1, *phC1};
+    if (m1_gate_driver.is_ready())
+    {
+        std::optional<float> phB = motors[1].phase_current_from_adcval(ADC2->DR);
+        std::optional<float> phC = motors[1].phase_current_from_adcval(ADC3->DR);
+        if (phB.has_value() && phC.has_value()) {
+            *current1 = {-*phB - *phC, *phB, *phC};
+        }
     }
     
     ADC1->SR = ~(ADC_SR_JEOC);

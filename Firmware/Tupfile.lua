@@ -241,6 +241,7 @@ board_v3 = {
     code_files = {
         'startup_stm32f405xx.s',
         '../../ThirdParty/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c',
+        '../../Drivers/DRV8323H/drv8323h.cpp',
         'board.cpp',
         'Src/stm32f4xx_hal_timebase_TIM.c',
         'Src/tim.c',

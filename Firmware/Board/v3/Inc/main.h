@@ -68,7 +68,7 @@
 /* Private define ------------------------------------------------------------*/
 #define TIM_1_8_CLOCK_HZ 168000000
 #define TIM_1_8_PERIOD_CLOCKS 3500
-#define TIM_1_8_DEADTIME_CLOCKS 20
+#define TIM_1_8_DEADTIME_CLOCKS 10
 #define TIM_APB1_CLOCK_HZ 84000000
 #define TIM_APB1_PERIOD_CLOCKS 4096
 #define TIM_APB1_DEADTIME_CLOCKS 40
@@ -114,6 +114,8 @@
 #define AUX_L_GPIO_Port GPIOB
 #define AUX_H_Pin GPIO_PIN_11
 #define AUX_H_GPIO_Port GPIOB
+#define EN_GATE_Pin GPIO_PIN_12
+#define EN_GATE_GPIO_Port GPIOB
 #define M0_AL_Pin GPIO_PIN_13
 #define M0_AL_GPIO_Port GPIOB
 #define M0_BL_Pin GPIO_PIN_14
@@ -136,6 +138,8 @@
 #define M0_CH_GPIO_Port GPIOA
 #define GPIO_7_Pin GPIO_PIN_15
 #define GPIO_7_GPIO_Port GPIOA
+#define nFAULT_Pin GPIO_PIN_2
+#define nFAULT_GPIO_Port GPIOD
 #define GPIO_8_Pin GPIO_PIN_3
 #define GPIO_8_GPIO_Port GPIOB
 #define M0_ENC_A_Pin GPIO_PIN_4

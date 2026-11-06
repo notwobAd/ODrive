@@ -29,7 +29,7 @@ public:
         float current_lim_margin = 8.0f;    // Maximum violation of current_lim
         float torque_lim = std::numeric_limits<float>::infinity();           //[Nm]. 
         // Value used to compute shunt amplifier gains
-        float requested_current_range = 50.0f; // [A]
+        float requested_current_range = 60.0f; // [A]
         float current_control_bandwidth = 1000.0f;  // [rad/s]
         float inverter_temp_limit_lower = 100;
         float inverter_temp_limit_upper = 120;
@@ -63,6 +63,7 @@ public:
     Motor(TIM_HandleTypeDef* timer,
          uint8_t current_sensor_mask,
          float shunt_conductance,
+         Drv8323h& gate_driver,
          OnboardThermistorCurrentLimiter& fet_thermistor,
          OffboardThermistorCurrentLimiter& motor_thermistor);
 
@@ -92,6 +93,7 @@ public:
     TIM_HandleTypeDef* const timer_;
     const uint8_t current_sensor_mask_;
     const float shunt_conductance_;
+    Drv8323h& gate_driver_;
     OnboardThermistorCurrentLimiter& fet_thermistor_;
     OffboardThermistorCurrentLimiter& motor_thermistor_;
 
@@ -115,7 +117,7 @@ public:
     Iph_ABC_t DC_calib_ = {0.0f, 0.0f, 0.0f};
     float dc_calib_running_since_ = 0.0f; // current sensor calibration needs some time to settle
     float I_bus_ = 0.0f; // this motors contribution to the bus current
-    float phase_current_rev_gain_ = 0.0f; // Reverse gain for ADC to Amps (to be set by DRV8301_setup)
+    float phase_current_rev_gain_ = 0.0f; // Reverse gain for ADC to Amps
     FieldOrientedController current_control_;
     float effective_current_lim_ = 10.0f; // [A]
     float max_allowed_current_ = 0.0f; // [A] set in setup()

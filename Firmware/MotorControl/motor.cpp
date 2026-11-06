@@ -151,11 +151,13 @@ struct InductanceMeasurementControlLaw : AlphaBetaFrameController {
 Motor::Motor(TIM_HandleTypeDef* timer,
              uint8_t current_sensor_mask,
              float shunt_conductance,
+             Drv8323h& gate_driver,
              OnboardThermistorCurrentLimiter& fet_thermistor,
              OffboardThermistorCurrentLimiter& motor_thermistor) :
         timer_(timer),
         current_sensor_mask_(current_sensor_mask),
         shunt_conductance_(shunt_conductance),
+        gate_driver_(gate_driver),
         fet_thermistor_(fet_thermistor),
         motor_thermistor_(motor_thermistor) {
     apply_config();
@@ -322,6 +324,10 @@ bool Motor::setup() {
 
     max_dc_calib_ = 0.1f * max_allowed_current_;
 
+    if (!gate_driver_.init()){
+        return false;
+    }
+
     return true;
 }
 
@@ -333,6 +339,12 @@ void Motor::disarm_with_error(Motor::Error error){
 }
 
 bool Motor::do_checks(uint32_t timestamp) {
+    gate_driver_.do_checks();
+
+    if (!gate_driver_.is_ready()) {
+        disarm_with_error(ERROR_DRV_FAULT);
+        return false;
+    }
     if (!motor_thermistor_.do_checks()) {
         disarm_with_error(ERROR_MOTOR_THERMISTOR_OVER_TEMP);
         return false;
